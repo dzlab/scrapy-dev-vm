@@ -22,14 +22,24 @@ class MorningstarProSpider(CrawlSpider):
             'parse_article')
     ]"""
 
-
-
+    # render starting url into splash then extract the links to companies pages
     def start_requests(self):
         script = """
         function main(splash)
             assert(splash:go(splash.args.url))
+            get_nodes_html = splash:jsfunc([[
+                function(css){
+                    var elems = document.querySelectorAll(css);
+                    var res = [];
+                    for (var i=0; i<elems.length; i++){
+                        res.push(elems[i].getElementsByTagName('a')[0].getAttribute('href'));
+                    }
+                    return res;
+                }
+            ]])
             splash:wait(20.0)
-            return splash:evaljs("document.querySelectorAll('p.MSMRSTSignature_FullName.MSMRSTArticleItemTitle')")
+            local res = get_nodes_html('p.MSMRSTSignature_FullName.MSMRSTArticleItemTitle')
+            return res
         end
         """
         for url in self.start_urls:
@@ -39,29 +49,26 @@ class MorningstarProSpider(CrawlSpider):
                     'args': {'lua_source': script}
                 }
             })
-
+    # receives a list of urls of companies pages
     def parse(self, response):
         #log.msg(response, level=log.DEBUG)
-        filename = response.url.split("/")[-1]
+        """filename = response.url.split("/")[-1]
         with open(filename, 'wb') as f:
-            f.write(response.body)
-        hxs = HtmlXPathSelector(response)
-        elements = hxs.select('//div[contains(@class, "MSMRSTListTableCell MSMRSTListTableCell_Text  MSMRSTListTableCell_Text_CompanyCard")]')
-        print elements
-        for elm in elements:
-            url = elm.select('./a/@href').extract()[0]
-            yield Request(url, self.parse_article, meta={
+            f.write(response.body)"""
+        urls = eval(response.body)
+        for url in urls:
+            yield Request(url, self.parse_company_page, meta={
                 'splash': {
                     'endpoint': 'render.html',
                     'args': {'wait': 10.0}
                 }
             })
 
-    # http://doc.scrapy.org/en/0.18/intro/tutorial.html#intro-tutorial
-    def parse_article(self, response):
-        print response.body
+    # retrieve contact information from a given company page
+    def parse_company_page(self, response):
+        #print response.body
         hxs = HtmlXPathSelector(response)
-        listing = hxs.select('//a[contains(@class, "MSMRSTNavigationPathPage")]')
+        listing = hxs.select('//a[contains(@class, "MSMRSTNavigationPathPage")]/href').extract()
 
         # use Item Loaders for removing spaces
         print listing

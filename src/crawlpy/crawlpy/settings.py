@@ -8,13 +8,13 @@
 #     http://doc.scrapy.org/en/latest/topics/settings.html
 #
 
-BOT_NAME = 'logement'
+BOT_NAME = 'crawlpy'
 
-SPIDER_MODULES = ['logement.spiders']
-NEWSPIDER_MODULE = 'logement.spiders'
+SPIDER_MODULES = ['crawlpy.spiders']
+NEWSPIDER_MODULE = 'crawlpy.spiders'
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'logement (+http://www.yourdomain.com)'
+#USER_AGENT = 'crawlpy (+http://www.yourdomain.com)'
 
 # configuring splash
 DOWNLOADER_MIDDLEWARES = {
