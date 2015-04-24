@@ -24,6 +24,7 @@ class MorningstarProSpider(CrawlSpider):
 
     # render starting url into splash then extract the links to companies pages
     def start_requests(self):
+        log.msg('Parsing starting urls: '+str(self.start_urls), level=log.DEBUG)
         script = """
         function main(splash)
             assert(splash:go(splash.args.url))
@@ -51,16 +52,36 @@ class MorningstarProSpider(CrawlSpider):
             })
     # receives a list of urls of companies pages
     def parse(self, response):
-        #log.msg(response, level=log.DEBUG)
-        """filename = response.url.split("/")[-1]
-        with open(filename, 'wb') as f:
-            f.write(response.body)"""
+        log.msg('Parsing company page: %s' % response.url, level=log.DEBUG)
+        script = """
+        function main(splash)
+            assert(splash:go(splash.args.url))
+            fetch = splash:jsfunc([[
+                function(){
+                    var res = {};
+                    var elems = document.querySelectorAll('a.MSMRSTNavigationPathPage');
+                    res['company'] = elems[elems.length-1].innerHTML;
+                    res['address'] = document.querySelectorAll('p.MSMRSTSignature_Address')[0].innerHTML;
+                    res['contacts'] = []
+                    var peoplElms = document.querySelector('div.MSMRSTWidget.MSMRSTWidget_People').querySelectorAll('div.MSMRSTListTableRow');
+                    for (var i=0; i<peoplElms.length; i++){
+                        var contact = {};
+                        contact['fullname'] = peoplElms[i].querySelector('p.MSMRSTSignature_FullName').childNodes[0].innerHTML;
+                        res['contacts'].push(contact);
+                    }
+                    return res;
+                }
+            ]])
+            splash:wait(20.0)
+            local res = fetch()
+            return res
+        """
         urls = eval(response.body)
         for url in urls:
             yield Request(url, self.parse_company_page, meta={
                 'splash': {
-                    'endpoint': 'render.html',
-                    'args': {'wait': 10.0}
+                    'endpoint': 'execute',
+                    'args': {'lua_source': script}
                 }
             })
 
