@@ -7,7 +7,16 @@
 
 from scrapy.item import Item, Field
 
-class LogementItem(Item):
+class RentalAdItem(Item):
+    """Rental Ad container (dictionary-like object) for scraped data"""
     title = Field()
     link = Field()
-    desc = Field()
+    description = Field()
+    reference = Field()
+    location = Field()
+    price = Field()
+    fees = Field()
+    surface = Field()
+    floor = Field()
+    room = Field()
+    constructedIn = Field()

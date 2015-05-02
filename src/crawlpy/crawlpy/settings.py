@@ -23,3 +23,15 @@ DOWNLOADER_MIDDLEWARES = {
 SPLASH_URL = 'http://localhost:8050/'
 DUPEFILTER_CLASS = 'scrapyjs.SplashAwareDupeFilter'
 HTTPCACHE_STORAGE = 'scrapyjs.SplashAwareFSCacheStorage'
+
+# db information
+DATABASE = {
+    'drivername': 'postgres',
+    'host': 'localhost',
+    'port': '5432',
+    'username': 'myapp',
+    'password': 'dbpass',
+    'database': 'myapp'
+}
+
+ITEM_PIPELINES = ['crawlpy.pipelines.RentalAdsPipeline']
