@@ -2,6 +2,9 @@
 
 apt-get install -y python-pip python-dev build-essential
 
+# install packages for postgresql
+apt-get install -y libpq-dev python-psycopg2
+
 # install more packages
 apt-get install -y libffi-dev libxml2-dev libxslt1-dev
 
@@ -14,6 +17,7 @@ virtualenv DEV
 . DEV/bin/activate
 
 # install developpment tools
+pip install psycopg2
 pip install scrapy
 pip install scrapyjs
 pip install selenium
